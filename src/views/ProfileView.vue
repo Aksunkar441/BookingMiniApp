@@ -21,7 +21,7 @@
           <p>💰 {{ booking.price || '0' }} KZT</p>
         </div>
 
-        <pre style="font-size: 8px; color: gray; margin-top: 10px; overflow: hidden;">{{ booking }}</pre>
+        
       </div>
     </div>
   </div>
