@@ -67,8 +67,9 @@ onMounted(() => {
 <style scoped>
 .profile-container {
   padding: 16px;
+  /* Используем системный шрифт и основной цвет текста Telegram */
   font-family: var(--tg-theme-font-family, sans-serif);
-  color: var(--tg-theme-text-color, #000);
+  color: var(--tg-theme-text-color, #222); 
   background-color: var(--tg-theme-bg-color, #fff);
   min-height: 100vh;
 }
@@ -76,54 +77,51 @@ onMounted(() => {
 h2 {
   margin-bottom: 20px;
   font-size: 24px;
-}
-
-.loader, .empty-state {
-  text-align: center;
-  padding: 40px 0;
-  color: var(--tg-theme-hint-color, #999);
+  /* Заголовок всегда будет подстраиваться под тему */
+  color: var(--tg-theme-text-color, #000);
 }
 
 .booking-card {
+  /* Вторичный фон Telegram (светло-серый в светлой, темно-серый в темной) */
   background-color: var(--tg-theme-secondary-bg-color, #f5f5f5);
   border-radius: 12px;
   padding: 16px;
   margin-bottom: 16px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-}
-
-.booking-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
+  border: 1px solid rgba(0,0,0,0.05); /* Легкая рамка для объема */
 }
 
 .booking-header h3 {
   margin: 0;
   font-size: 18px;
-}
-
-.status-badge {
-  padding: 4px 8px;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: bold;
-}
-
-.status-badge.paid {
-  background-color: #e6f4ea;
-  color: #1e8e3e;
-}
-
-.status-badge.pending {
-  background-color: #fef7e0;
-  color: #f9ab00;
+  /* Убеждаемся, что название сервиса белое в темной теме */
+  color: var(--tg-theme-text-color, #000);
 }
 
 .booking-details p {
-  margin: 4px 0;
+  margin: 6px 0;
   font-size: 14px;
-  color: var(--tg-theme-hint-color, #666);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  /* Hint-color — это чуть более приглушенный цвет текста в Telegram */
+  color: var(--tg-theme-text-color, #444); 
+}
+
+.status-badge {
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* Цвета для бейджиков оставляем яркими, они хорошо видны везде */
+.status-badge.paid {
+  background-color: #31b545;
+  color: #fff;
+}
+
+.status-badge.pending {
+  background-color: #f1a208;
+  color: #fff;
 }
 </style>
