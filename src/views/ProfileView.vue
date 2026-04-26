@@ -2,27 +2,26 @@
   <div class="profile-container">
     <h2>Мои записи</h2>
 
-    <div v-if="loading" class="loader">
-      Загружаем историю... ⏳
-    </div>
+    <div v-if="loading" class="loader">Загрузка...</div>
 
-    <div v-else-if="bookings.length === 0" class="empty-state">
-      У вас пока нет активных записей.
-    </div>
+    <div v-else-if="bookings.length === 0" class="empty-state">Записей не найдено</div>
 
     <div v-else class="bookings-list">
       <div v-for="booking in bookings" :key="booking.booking_id" class="booking-card">
         <div class="booking-header">
-          <h3>{{ booking.service }}</h3>
+          <h3>{{ booking.service || 'Услуга не указана' }}</h3>
           <span :class="['status-badge', booking.payment_status]">
             {{ booking.payment_status === 'paid' ? 'Оплачено ✅' : 'Ожидает ⏳' }}
           </span>
         </div>
+        
         <div class="booking-details">
-          <p>📅 {{ booking.date }}</p>
-          <p>⏰ {{ booking.start_time }} - {{ booking.end_time }}</p>
-          <p>💰 {{ booking.price }} KZT</p>
+          <p>📅 {{ booking.date || 'Нет даты' }}</p>
+          <p>⏰ {{ booking.start_time || '??' }} - {{ booking.end_time || '??' }}</p>
+          <p>💰 {{ booking.price || '0' }} KZT</p>
         </div>
+
+        <pre style="font-size: 8px; color: gray; margin-top: 10px; overflow: hidden;">{{ booking }}</pre>
       </div>
     </div>
   </div>
@@ -65,63 +64,33 @@ onMounted(() => {
 </script>
 
 <style scoped>
+/* Форсируем цвета через !important, чтобы никакие глобальные стили их не перебили */
 .profile-container {
   padding: 16px;
-  /* Используем системный шрифт и основной цвет текста Telegram */
-  font-family: var(--tg-theme-font-family, sans-serif);
-  color: var(--tg-theme-text-color, #222); 
-  background-color: var(--tg-theme-bg-color, #fff);
+  background-color: var(--tg-theme-bg-color, #fff) !important;
+  color: var(--tg-theme-text-color, #000) !important;
   min-height: 100vh;
 }
 
-h2 {
-  margin-bottom: 20px;
-  font-size: 24px;
-  /* Заголовок всегда будет подстраиваться под тему */
-  color: var(--tg-theme-text-color, #000);
+h2, h3, p {
+  color: var(--tg-theme-text-color, #000) !important;
 }
 
 .booking-card {
-  /* Вторичный фон Telegram (светло-серый в светлой, темно-серый в темной) */
-  background-color: var(--tg-theme-secondary-bg-color, #f5f5f5);
+  background-color: var(--tg-theme-secondary-bg-color, #f0f0f0) !important;
   border-radius: 12px;
   padding: 16px;
   margin-bottom: 16px;
-  border: 1px solid rgba(0,0,0,0.05); /* Легкая рамка для объема */
+  border: 1px solid rgba(128, 128, 128, 0.2);
 }
 
-.booking-header h3 {
-  margin: 0;
-  font-size: 18px;
-  /* Убеждаемся, что название сервиса белое в темной теме */
-  color: var(--tg-theme-text-color, #000);
-}
+.status-badge.paid { color: #31b545 !important; font-weight: bold; }
+.status-badge.pending { color: #f1a208 !important; font-weight: bold; }
 
 .booking-details p {
-  margin: 6px 0;
-  font-size: 14px;
   display: flex;
   align-items: center;
   gap: 8px;
-  /* Hint-color — это чуть более приглушенный цвет текста в Telegram */
-  color: var(--tg-theme-text-color, #444); 
-}
-
-.status-badge {
-  padding: 4px 10px;
-  border-radius: 8px;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-/* Цвета для бейджиков оставляем яркими, они хорошо видны везде */
-.status-badge.paid {
-  background-color: #31b545;
-  color: #fff;
-}
-
-.status-badge.pending {
-  background-color: #f1a208;
-  color: #fff;
+  margin: 8px 0;
 }
 </style>
