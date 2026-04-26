@@ -44,7 +44,8 @@ const fetchProfileData = async () => {
 
   try {
     // ВСТАВЬ СЮДА СВОЙ PRODUCTION URL ИЗ N8N (ИЗ ШАГА 1)
-    const webhookUrl = `https://https://automatization019283.app.n8n.cloud/webhook/get-bookings/webhook/get-bookings?chat_id=${chatId}`;
+    // Очисти всё лишнее, оставь один чистый адрес
+    const webhookUrl = `https://automatization019283.app.n8n.cloud/webhook/get-bookings?chat_id=${chatId}`;
     
     const response = await fetch(webhookUrl);
     const data = await response.json();
