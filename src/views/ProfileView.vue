@@ -236,12 +236,23 @@ onMounted(() => {
   left: 0;
   right: 0;
   z-index: 2;
-  padding: 24px 20px;
-  /* Градиент от прозрачного к фону темы Telegram */
-  background: linear-gradient(to top, var(--tg-theme-bg-color, rgba(255,255,255,1)) 40%, rgba(255,255,255,0.6));
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-top: 1px solid rgba(255,255,255,0.3);
+  /* Увеличили верхний отступ до 48px, чтобы переход был более длинным и мягким */
+  padding: 48px 20px 24px; 
+  
+  /* Идеально плавный градиент: от полностью прозрачного -> полупрозрачному -> сплошному фону */
+  background: linear-gradient(
+    to bottom, 
+    transparent 0%, 
+    rgba(0, 0, 0, 0.05) 20%,
+    var(--tg-theme-bg-color, #ffffff) 70%, 
+    var(--tg-theme-bg-color, #ffffff) 100%
+  );
+  
+  /* Делаем размытие более деликатным */
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  
+  /* Убрали border-top, который создавал резкую линию */
 }
 
 .service-title {
