@@ -190,7 +190,7 @@ const submitBooking = async () => {
     })
 
     if (response.ok) {
-      alert('Успешно оформлено!')
+      alert('Успешно оформлено, Вам пришёл счёт в телеграмм бот!')
       selectedDate.value = ''
       selectedTime.value = ''
       selectedService.value = null

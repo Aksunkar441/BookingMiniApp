@@ -22,7 +22,7 @@
           <span :class="['status-badge', booking.payment_status]">
             {{ 
               booking.payment_status === 'paid' ? 'Оплачено ✅' : 
-              booking.payment_status === 'refunded' ? 'Возврат 💸' : 'Ожидает ⏳' 
+              booking.payment_status === 'refunded' ? 'Возврат 💸' : 'Отклонено ❌' 
             }}
           </span>
         </div>
@@ -228,16 +228,18 @@ h2, h3, p {
 }
 .status-badge.paid { background-color: rgba(49, 181, 69, 0.15); color: #31b545 !important; }
 .status-badge.refunded { background-color: rgba(128, 128, 128, 0.15); color: #888888 !important; }
-.status-badge.pending { background-color: rgba(241, 162, 8, 0.15); color: #f1a208 !important; }
+/* Изменили цвет для статуса 'pending' (Отклонено), сделав его серым */
+.status-badge.pending { background-color: rgba(128, 128, 128, 0.15); color: #888888 !important; }
 
-/* Кнопка возврата */
+/* Кнопка возврата - НОВЫЙ серый стиль */
 .refund-btn {
   margin-top: 16px;
   width: 100%;
   padding: 12px;
   background-color: transparent;
-  border: 1px solid #ff4d4f;
-  color: #ff4d4f;
+  /* Серая граница и серый текст */
+  border: 1px solid #c0c0c0;
+  color: #808080;
   border-radius: 10px;
   font-size: 15px;
   font-weight: 600;
@@ -251,7 +253,8 @@ h2, h3, p {
 }
 
 .refund-btn:active:not(:disabled) {
-  background-color: rgba(255, 77, 79, 0.1);
+  /* Легкий серый фон при нажатии */
+  background-color: rgba(192, 192, 192, 0.1);
   transform: scale(0.98);
 }
 </style>
