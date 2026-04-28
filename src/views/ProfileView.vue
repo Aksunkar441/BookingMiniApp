@@ -53,6 +53,7 @@
 import { ref, computed, onMounted } from 'vue';
 
 const tg = window.Telegram?.WebApp || null;
+// Твой ID для тестов в браузере
 const chatId = tg?.initDataUnsafe?.user?.id || '6046106147'; 
 
 const bookings = ref([]);
@@ -60,14 +61,13 @@ const loading = ref(true);
 const filter = ref('week'); 
 const isProcessing = ref(null);
 
-// МАССИВ ДЕМО-КАРТИНОК
+// Демо-картинки для красивого вида
 const demoImages = [
-  'https://wallpapercave.com/wp/wp13739182.jpg', // 1. Твоя ссылка
-  'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?q=80&w=800&auto=format&fit=crop', // 2. Интерьер барбершопа (замена фото 2)
-  'https://images.unsplash.com/photo-1560066984-138dadb4c035?q=80&w=800&auto=format&fit=crop'  // 3. Эстетичный салон
+  'https://wallpapercave.com/wp/wp13739182.jpg', 
+  'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?q=80&w=800&auto=format&fit=crop', 
+  'https://images.unsplash.com/photo-1560066984-138dadb4c035?q=80&w=800&auto=format&fit=crop'
 ];
 
-// Функция, которая по кругу выдает картинку в зависимости от номера записи
 const getDemoImage = (index) => {
   return demoImages[index % demoImages.length];
 };
@@ -145,7 +145,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* Базовые настройки */
 .profile-container {
   padding: 16px;
   background-color: var(--tg-theme-bg-color, #f8f9fa) !important;
@@ -160,7 +159,6 @@ onMounted(() => {
   font-weight: 700;
 }
 
-/* Вкладки */
 .filter-tabs {
   display: flex;
   gap: 8px;
@@ -189,16 +187,15 @@ onMounted(() => {
   font-weight: 600;
 }
 
-/* ПРЕМИУМ КАРТОЧКА (Стиль Sophie Bennett) */
 .premium-card {
   position: relative;
   width: 100%;
-  height: 380px; /* Высокая карточка */
+  height: 380px; 
   border-radius: 28px;
   overflow: hidden;
   margin-bottom: 24px;
   box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-  background: #000; /* Фон на случай долгой загрузки картинки */
+  background: #000; 
 }
 
 .card-bg-image {
@@ -211,7 +208,6 @@ onMounted(() => {
   z-index: 1;
 }
 
-/* Плавающий бейдж статуса */
 .floating-badge {
   position: absolute;
   top: 16px;
@@ -229,17 +225,14 @@ onMounted(() => {
 .floating-badge.refunded { background: rgba(255,255,255,0.85); color: #6c757d; }
 .floating-badge.pending { background: rgba(255,255,255,0.85); color: #dc3545; }
 
-/* Матовое стекло (Glassmorphism) для контента */
+/* Идеально плавный градиент */
 .glass-content {
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
   z-index: 2;
-  /* Увеличили верхний отступ до 48px, чтобы переход был более длинным и мягким */
   padding: 48px 20px 24px; 
-  
-  /* Идеально плавный градиент: от полностью прозрачного -> полупрозрачному -> сплошному фону */
   background: linear-gradient(
     to bottom, 
     transparent 0%, 
@@ -247,12 +240,8 @@ onMounted(() => {
     var(--tg-theme-bg-color, #ffffff) 70%, 
     var(--tg-theme-bg-color, #ffffff) 100%
   );
-  
-  /* Делаем размытие более деликатным */
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  
-  /* Убрали border-top, который создавал резкую линию */
 }
 
 .service-title {
@@ -269,7 +258,6 @@ onMounted(() => {
   font-weight: 500;
 }
 
-/* Новая кнопка Cancel (стильная, серая) */
 .refund-btn {
   margin-top: 16px;
   width: auto;
@@ -285,10 +273,7 @@ onMounted(() => {
   display: inline-block;
 }
 
-.refund-btn:disabled {
-  opacity: 0.6;
-}
-
+.refund-btn:disabled { opacity: 0.6; }
 .refund-btn:active:not(:disabled) {
   transform: scale(0.96);
   background-color: rgba(0,0,0,0.05);

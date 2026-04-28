@@ -28,6 +28,7 @@
         type="date" 
         v-model="selectedDate" 
         @change="fetchAvailableSlots" 
+        :min="new Date().toISOString().split('T')[0]"
         class="form-input"
       />
     </div>
@@ -40,7 +41,8 @@
       </div>
       
       <div v-else class="ios-picker-container">
-        <div class="picker-window"></div> <ul class="picker-wheel" @scroll="handleScroll" ref="wheel">
+        <div class="picker-window"></div> 
+        <ul class="picker-wheel" @scroll="handleScroll" ref="wheel">
           <li class="spacer"></li>
           <li 
             v-for="time in slots" 
@@ -85,7 +87,6 @@ import { ref, computed } from 'vue'
 const GET_SLOTS_URL = 'https://automatization019283.app.n8n.cloud/webhook/get-slots'
 const POST_BOOKING_URL = 'https://automatization019283.app.n8n.cloud/webhook/create-booking'
 
-// База услуг (в будущем можно тоже тянуть из Google Sheets)
 const services = ref([
   { id: 1, name: 'Быстрая стрижка', duration: 30, price: 5000 },
   { id: 2, name: 'Стандартная процедура', duration: 60, price: 10000 },
@@ -101,7 +102,6 @@ const wheel = ref(null)
 const isLoading = ref(false)
 const isSubmitting = ref(false)
 
-// Вычисляем время конца для чека
 const calculatedEndTime = computed(() => {
   if (!selectedTime.value || !selectedService.value) return ''
   const [hours, minutes] = selectedTime.value.split(':').map(Number)
@@ -117,7 +117,6 @@ const selectService = (srv) => {
   if (selectedDate.value) fetchAvailableSlots()
 }
 
-// 1. GET ЗАПРОС с передачей длительности
 const fetchAvailableSlots = async () => {
   if (!selectedDate.value || !selectedService.value) return
   
@@ -126,7 +125,6 @@ const fetchAvailableSlots = async () => {
   slots.value = []
 
   try {
-    // Теперь мы отправляем n8n не только дату, но и сколько минут длится услуга!
     const url = `${GET_SLOTS_URL}?date=${selectedDate.value}&duration=${selectedService.value.duration}`
     const response = await fetch(url)
     
@@ -135,7 +133,6 @@ const fetchAvailableSlots = async () => {
     const data = await response.json()
     slots.value = data.slots || []
     
-    // Автоматически выбираем первый слот
     if (slots.value.length > 0) {
       selectedTime.value = slots.value[0]
     }
@@ -147,10 +144,9 @@ const fetchAvailableSlots = async () => {
   }
 }
 
-// Логика прокрутки для iOS барабана
 const handleScroll = () => {
   if (!wheel.value || slots.value.length === 0) return
-  const itemHeight = 40 // высота одного элемента
+  const itemHeight = 40 
   const centerIndex = Math.round(wheel.value.scrollTop / itemHeight)
   if (slots.value[centerIndex]) {
     selectedTime.value = slots.value[centerIndex]
@@ -164,21 +160,20 @@ const scrollToTime = (time) => {
   }
 }
 
-// 2. POST ЗАПРОС
 const submitBooking = async () => {
   if (!selectedDate.value || !selectedTime.value) return
   isSubmitting.value = true
 
   try {
-    const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user || { id: '123456', first_name: 'Aks_VIP' }
+    const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user || { id: '6046106147', first_name: 'Aks_VIP' }
 
     const payload = {
       chat_id: tgUser.id.toString(),
       customer_name: tgUser.first_name,
-      service: selectedService.value.name, // Отправляем реальное имя услуги
+      service: selectedService.value.name, 
       date: selectedDate.value,
       start_time: selectedTime.value,
-      end_time: calculatedEndTime.value, // Отправляем точный конец
+      end_time: calculatedEndTime.value, 
       price: selectedService.value.price.toString(),
       payment_status: "pending"
     }
@@ -211,7 +206,6 @@ h2 { margin: 0; font-size: 24px; color: #000; font-weight: 700; }
 .section-title { font-size: 14px; text-transform: uppercase; color: #6e6e73; font-weight: 600; margin-bottom: 8px; display: block; }
 .form-input { width: 100%; padding: 14px; font-size: 16px; border: none; border-radius: 12px; background-color: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.1); box-sizing: border-box; }
 
-/* Карточки услуг */
 .services-list { display: flex; flex-direction: column; gap: 10px; }
 .service-card { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 16px; border-radius: 12px; cursor: pointer; transition: 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 2px solid transparent; }
 .service-card.active { border-color: #007aff; background: #f0f8ff; }
@@ -222,7 +216,6 @@ h2 { margin: 0; font-size: 24px; color: #000; font-weight: 700; }
 .service-card.active .srv-radio { border-color: #007aff; }
 .radio-inner { width: 12px; height: 12px; border-radius: 50%; background: #007aff; }
 
-/* iOS Барабан */
 .ios-picker-container { position: relative; height: 120px; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: inset 0 0 10px rgba(0,0,0,0.05); }
 .picker-window { position: absolute; top: 40px; left: 0; right: 0; height: 40px; background: rgba(0, 122, 255, 0.1); border-top: 1px solid rgba(0, 122, 255, 0.3); border-bottom: 1px solid rgba(0, 122, 255, 0.3); pointer-events: none; z-index: 1; }
 .picker-wheel { margin: 0; padding: 0; list-style: none; height: 120px; overflow-y: scroll; scroll-snap-type: y mandatory; scroll-behavior: smooth; -ms-overflow-style: none; scrollbar-width: none; }
@@ -231,7 +224,6 @@ h2 { margin: 0; font-size: 24px; color: #000; font-weight: 700; }
 .picker-item.active { color: #000; font-weight: 600; transform: scale(1.1); }
 .spacer { height: 40px; }
 
-/* Чек и кнопка */
 .summary-card { background: #fff; padding: 16px; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); display: flex; flex-direction: column; gap: 8px; }
 .summary-row { display: flex; justify-content: space-between; font-size: 15px; color: #333; }
 .total { border-top: 1px solid #eee; padding-top: 8px; margin-top: 4px; font-size: 18px; color: #000; }
