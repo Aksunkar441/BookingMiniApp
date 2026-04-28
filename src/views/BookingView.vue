@@ -119,11 +119,39 @@ const fetchAvailableSlots = async () => {
   selectedTime.value = '' 
   isLoading.value = true
   slots.value = []
+  
   try {
     const url = `${GET_SLOTS_URL}?date=${selectedDate.value}&duration=${selectedService.value.duration}`
     const response = await fetch(url)
     const data = await response.json()
-    slots.value = data.slots || []
+    
+    let fetchedSlots = data.slots || []
+
+    // --- ЛОГИКА ФИЛЬТРАЦИИ ПРОШЕДШЕГО ВРЕМЕНИ ---
+    const now = new Date()
+    const selected = new Date(selectedDate.value)
+
+    // Проверяем, совпадает ли выбранная дата с сегодняшним днем
+    if (
+      now.getFullYear() === selected.getFullYear() &&
+      now.getMonth() === selected.getMonth() &&
+      now.getDate() === selected.getDate()
+    ) {
+      // Переводим текущее время в минуты (часы * 60 + минуты)
+      // Добавляем 15 минут запаса, чтобы избежать брони "секунда в секунду"
+      const currentTimeInMinutes = now.getHours() * 60 + now.getMinutes() + 15
+
+      // Оставляем только те слоты, которые будут ПОЗЖЕ текущего времени
+      fetchedSlots = fetchedSlots.filter(timeStr => {
+        const [slotHours, slotMinutes] = timeStr.split(':').map(Number)
+        const slotTotalMinutes = slotHours * 60 + slotMinutes
+        
+        return slotTotalMinutes > currentTimeInMinutes
+      })
+    }
+    // --------------------------------------------
+
+    slots.value = fetchedSlots
   } catch (error) {
     console.error(error)
   } finally {
