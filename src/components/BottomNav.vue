@@ -1,78 +1,106 @@
 <template>
-  <nav class="tg-bottom-nav">
+  <nav class="modern-bottom-nav">
     <router-link to="/" class="nav-item" exact-active-class="active">
-      <div class="icon-wrapper">
+      <div class="nav-content">
         <span class="icon">📅</span>
+        <span class="label">Запись</span>
       </div>
-      <span class="label">Запись</span>
     </router-link>
 
     <router-link to="/profile" class="nav-item" exact-active-class="active">
-      <div class="icon-wrapper">
+      <div class="nav-content">
         <span class="icon">👤</span>
+        <span class="label">Профиль</span>
       </div>
-      <span class="label">Профиль</span>
     </router-link>
   </nav>
 </template>
 
+<script setup>
+// Скрипт можно оставить пустым, так как роутер работает через HTML-теги
+</script>
+
 <style scoped>
-/* Панель прибита к низу экрана */
-.tg-bottom-nav {
+/* Плавающая панель навигации
+  Она оторвана от нижнего края экрана и имеет форму черной капсулы
+*/
+.modern-bottom-nav {
   position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 60px;
-  /* Используем цвета из темы пользователя Telegram */
-  background-color: var(--tg-theme-bg-color, #ffffff);
-  border-top: 0.5px solid var(--tg-theme-hint-color, #c8c7cc);
-  
+  bottom: 24px; /* Отступ от низа экрана */
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 48px); /* Ширина с учетом боковых отступов */
+  max-width: 380px; /* Не даем ей растягиваться на планшетах */
+  height: 68px;
+  background-color: #151515; /* Глубокий черный, как наши карточки */
+  border-radius: 34px; /* Идеальное скругление */
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
   align-items: center;
+  padding: 0 8px; /* Внутренний отступ для кнопок */
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.2);
   z-index: 1000;
-  /* Добавляем безопасный отступ для новых iPhone (челка снизу) */
-  padding-bottom: env(safe-area-inset-bottom);
+  
+  /* Фикс для iPhone (учитывает полоску Home) */
+  margin-bottom: env(safe-area-inset-bottom);
 }
 
+/* Базовый стиль для вкладок (Неактивное состояние)
+*/
 .nav-item {
+  flex: 1;
   display: flex;
-  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 52px;
+  border-radius: 26px;
+  text-decoration: none;
+  color: #888888; /* Серый цвет для неактивных иконок */
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+.nav-content {
+  display: flex;
   align-items: center;
   justify-content: center;
-  text-decoration: none;
-  /* Неактивные элементы получают цвет подсказок Telegram */
-  color: var(--tg-theme-hint-color, #999999);
-  flex: 1;
-  height: 100%;
-  transition: all 0.2s ease;
+  gap: 8px;
 }
 
 .icon {
-  font-size: 24px;
-  line-height: 1;
+  font-size: 20px;
+  transition: transform 0.3s ease;
 }
 
+/* Скрываем текст, когда вкладка неактивна */
 .label {
-  font-size: 11px;
-  margin-top: 4px;
-  font-weight: 500;
+  font-size: 15px;
+  font-weight: 700;
+  max-width: 0;
+  opacity: 0;
+  white-space: nowrap;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Стили для активной вкладки (когда пользователь находится на этой странице) */
+/* Активное состояние (Магия анимации)
+*/
 .nav-item.active {
-  /* Активный элемент окрашивается в фирменный цвет ссылок/кнопок Telegram */
-  color: var(--tg-theme-button-color, #3390ec);
+  /* Кнопка становится шире */
+  flex: 1.4; 
+  /* Наш фирменный неоновый цвет */
+  background-color: #A7C0D8; 
+  color: #111111; /* Текст и иконка становятся черными */
+  box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.2);
 }
 
-.nav-item.active .icon-wrapper {
-  transform: scale(1.1);
-  transition: transform 0.2s ease;
+.nav-item.active .icon {
+  transform: scale(1.1); /* Слегка увеличиваем иконку */
+}
+
+/* Плавно показываем текст только у активной вкладки */
+.nav-item.active .label {
+  max-width: 100px;
+  opacity: 1;
+  margin-left: 4px;
 }
 </style>
- <script>
- export default {
-    name : "Navbar"
- }
- </script>

@@ -1,24 +1,27 @@
 import { createRouter, createWebHistory } from 'vue-router'
-// Импортируем наши экраны из папки views
+import WelcomeView from '../views/WelcomeView.vue'
 import BookingView from '../views/BookingView.vue'
 import ProfileView from '../views/ProfileView.vue'
 
-const routes = [
-  {
-    path: '/',
-    name: 'Booking',
-    component: BookingView
-  },
-  {
-    path: '/profile',
-    name: 'Profile',
-    component: ProfileView
-  }
-]
-
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
-  routes
+  routes: [
+    {
+      path: '/',
+      name: 'welcome',
+      component: WelcomeView
+    },
+    {
+      path: '/booking',
+      name: 'booking',
+      component: BookingView
+    },
+    {
+      path: '/profile',
+      name: 'profile',
+      component: ProfileView
+    }
+  ]
 })
 
 export default router

@@ -5,7 +5,7 @@
       <router-view />
     </main>
 
-    <BottomNav />
+    <BottomNav v-if="$route.path !== '/'" />
     
   </div>
 </template>

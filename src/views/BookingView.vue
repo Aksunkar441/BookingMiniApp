@@ -1,9 +1,12 @@
 <template>
   <div class="booking-container">
-    <h2>Запись на сеанс</h2>
+    
+    <div class="header">
+      <h2>Book a Session</h2>
+      <p>Select service and time</p>
+    </div>
 
     <div class="section">
-      <label class="section-title">Выберите услугу:</label>
       <div class="services-list">
         <div 
           v-for="srv in services" 
@@ -13,17 +16,15 @@
         >
           <div class="srv-info">
             <span class="srv-name">{{ srv.name }}</span>
-            <span class="srv-details">{{ srv.duration }} мин • {{ srv.price }} ₸</span>
+            <span class="srv-details">{{ srv.duration }} min</span>
           </div>
-          <div class="srv-radio">
-            <div class="radio-inner" v-if="selectedService?.id === srv.id"></div>
-          </div>
+          <div class="srv-price">{{ srv.price }} ₸</div>
         </div>
       </div>
     </div>
 
     <div class="section" v-if="selectedService">
-      <label class="section-title">Выберите дату:</label>
+      <label class="section-title">Select Date</label>
       <input 
         type="date" 
         v-model="selectedDate" 
@@ -34,40 +35,38 @@
     </div>
 
     <div class="section" v-if="selectedDate && !isLoading">
-      <label class="section-title">Доступное время:</label>
+      <label class="section-title">Available Time</label>
+      <div v-if="slots.length === 0" class="error-msg">No slots available 😔</div>
       
-      <div v-if="slots.length === 0" class="error-msg">
-        Нет свободного времени для этой услуги 😔
-      </div>
-      
-      <div v-else class="ios-picker-container">
-        <div class="picker-window"></div> 
-        <ul class="picker-wheel" @scroll="handleScroll" ref="wheel">
-          <li class="spacer"></li>
-          <li 
-            v-for="time in slots" 
-            :key="time"
-            :class="['picker-item', { active: selectedTime === time }]"
-            @click="scrollToTime(time)"
-          >
-            {{ time }}
-          </li>
-          <li class="spacer"></li>
-        </ul>
+      <div v-else class="time-grid">
+        <button 
+          v-for="time in slots" 
+          :key="time"
+          :class="['time-pill', { active: selectedTime === time }]"
+          @click="selectedTime = time"
+        >
+          {{ time }}
+        </button>
       </div>
     </div>
 
-    <div v-if="isLoading" class="loader">Ищем окошки...</div>
+    <div v-if="isLoading" class="loader">Searching slots...</div>
 
     <div class="summary-card" v-if="selectedTime">
-      <div class="summary-row">
-        <span>Услуга:</span> <strong>{{ selectedService.name }}</strong>
-      </div>
-      <div class="summary-row">
-        <span>Время:</span> <strong>{{ selectedTime }} - {{ calculatedEndTime }}</strong>
-      </div>
-      <div class="summary-row total">
-        <span>Итого:</span> <strong>{{ selectedService.price }} ₸</strong>
+      <div class="summary-content">
+        <div class="sum-row">
+          <span class="label">Service</span>
+          <span class="val">{{ selectedService.name }}</span>
+        </div>
+        <div class="sum-row">
+          <span class="label">Time</span>
+          <span class="val">{{ selectedTime }}</span>
+        </div>
+        <div class="sum-divider"></div>
+        <div class="sum-row total">
+          <span>Total</span>
+          <span>{{ selectedService.price }} ₸</span>
+        </div>
       </div>
       
       <button 
@@ -75,7 +74,7 @@
         :disabled="isSubmitting"
         @click="submitBooking"
       >
-        {{ isSubmitting ? 'Оформляем...' : 'Оплатить и Записаться' }}
+        {{ isSubmitting ? 'Processing...' : 'Confirm & Pay' }}
       </button>
     </div>
   </div>
@@ -88,17 +87,15 @@ const GET_SLOTS_URL = 'https://automatization019283.app.n8n.cloud/webhook/get-sl
 const POST_BOOKING_URL = 'https://automatization019283.app.n8n.cloud/webhook/create-booking'
 
 const services = ref([
-  { id: 1, name: 'Быстрая стрижка', duration: 30, price: 5000 },
-  { id: 2, name: 'Стандартная процедура', duration: 60, price: 10000 },
-  { id: 3, name: 'Сложный комплекс', duration: 90, price: 15000 }
+  { id: 1, name: 'Quick Haircut', duration: 30, price: 5000 },
+  { id: 2, name: 'Standard Wash & Cut', duration: 60, price: 10000 },
+  { id: 3, name: 'Premium Complex', duration: 90, price: 15000 }
 ])
 
 const selectedService = ref(null)
 const selectedDate = ref('')
 const selectedTime = ref('')
 const slots = ref([])
-const wheel = ref(null)
-
 const isLoading = ref(false)
 const isSubmitting = ref(false)
 
@@ -119,54 +116,26 @@ const selectService = (srv) => {
 
 const fetchAvailableSlots = async () => {
   if (!selectedDate.value || !selectedService.value) return
-  
   selectedTime.value = '' 
   isLoading.value = true
   slots.value = []
-
   try {
     const url = `${GET_SLOTS_URL}?date=${selectedDate.value}&duration=${selectedService.value.duration}`
     const response = await fetch(url)
-    
-    if (!response.ok) throw new Error('Ошибка сервера')
-    
     const data = await response.json()
     slots.value = data.slots || []
-    
-    if (slots.value.length > 0) {
-      selectedTime.value = slots.value[0]
-    }
   } catch (error) {
     console.error(error)
-    alert('Не удалось загрузить расписание.')
   } finally {
     isLoading.value = false
-  }
-}
-
-const handleScroll = () => {
-  if (!wheel.value || slots.value.length === 0) return
-  const itemHeight = 40 
-  const centerIndex = Math.round(wheel.value.scrollTop / itemHeight)
-  if (slots.value[centerIndex]) {
-    selectedTime.value = slots.value[centerIndex]
-  }
-}
-
-const scrollToTime = (time) => {
-  const index = slots.value.indexOf(time)
-  if (index !== -1 && wheel.value) {
-    wheel.value.scrollTo({ top: index * 40, behavior: 'smooth' })
   }
 }
 
 const submitBooking = async () => {
   if (!selectedDate.value || !selectedTime.value) return
   isSubmitting.value = true
-
   try {
-    const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user || { id: '6046106147', first_name: 'Aks_VIP' }
-
+    const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user || { id: '6046106147', first_name: 'David' }
     const payload = {
       chat_id: tgUser.id.toString(),
       customer_name: tgUser.first_name,
@@ -177,20 +146,14 @@ const submitBooking = async () => {
       price: selectedService.value.price.toString(),
       payment_status: "pending"
     }
-
     const response = await fetch(POST_BOOKING_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
     })
-
     if (response.ok) {
-      alert('Успешно оформлено, Вам пришёл счёт в телеграмм бот!')
-      selectedDate.value = ''
-      selectedTime.value = ''
-      selectedService.value = null
+      alert('Success! Invoice sent to bot.')
+      selectedDate.value = ''; selectedTime.value = ''; selectedService.value = null;
     } else {
-      alert('Ошибка при бронировании.')
+      alert('Booking error.')
     }
   } catch (error) {
     console.error(error)
@@ -201,33 +164,61 @@ const submitBooking = async () => {
 </script>
 
 <style scoped>
-.booking-container { display: flex; flex-direction: column; padding: 20px; gap: 24px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #f2f2f7; min-height: 100vh; }
-h2 { margin: 0; font-size: 24px; color: #000; font-weight: 700; }
-.section-title { font-size: 14px; text-transform: uppercase; color: #6e6e73; font-weight: 600; margin-bottom: 8px; display: block; }
-.form-input { width: 100%; padding: 14px; font-size: 16px; border: none; border-radius: 12px; background-color: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.1); box-sizing: border-box; }
+.booking-container {
+  padding: 24px; background: #ffffff; min-height: 100vh;
+  font-family: 'SF Pro Display', -apple-system, sans-serif;
+}
+.header { margin-bottom: 32px; }
+.header h2 { margin: 0; font-size: 28px; font-weight: 800; color: #111; }
+.header p { margin: 4px 0 0; color: #888; font-weight: 500; }
 
-.services-list { display: flex; flex-direction: column; gap: 10px; }
-.service-card { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 16px; border-radius: 12px; cursor: pointer; transition: 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 2px solid transparent; }
-.service-card.active { border-color: #007aff; background: #f0f8ff; }
-.srv-info { display: flex; flex-direction: column; gap: 4px; }
-.srv-name { font-size: 16px; font-weight: 600; color: #000; }
-.srv-details { font-size: 14px; color: #6e6e73; }
-.srv-radio { width: 22px; height: 22px; border-radius: 50%; border: 2px solid #c7c7cc; display: flex; align-items: center; justify-content: center; }
-.service-card.active .srv-radio { border-color: #007aff; }
-.radio-inner { width: 12px; height: 12px; border-radius: 50%; background: #007aff; }
+.section { margin-bottom: 24px; }
+.section-title { font-size: 15px; font-weight: 700; color: #111; margin-bottom: 12px; display: block; }
 
-.ios-picker-container { position: relative; height: 120px; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: inset 0 0 10px rgba(0,0,0,0.05); }
-.picker-window { position: absolute; top: 40px; left: 0; right: 0; height: 40px; background: rgba(0, 122, 255, 0.1); border-top: 1px solid rgba(0, 122, 255, 0.3); border-bottom: 1px solid rgba(0, 122, 255, 0.3); pointer-events: none; z-index: 1; }
-.picker-wheel { margin: 0; padding: 0; list-style: none; height: 120px; overflow-y: scroll; scroll-snap-type: y mandatory; scroll-behavior: smooth; -ms-overflow-style: none; scrollbar-width: none; }
-.picker-wheel::-webkit-scrollbar { display: none; }
-.picker-item { height: 40px; display: flex; align-items: center; justify-content: center; font-size: 20px; color: #c7c7cc; scroll-snap-align: center; cursor: pointer; transition: 0.2s; }
-.picker-item.active { color: #000; font-weight: 600; transform: scale(1.1); }
-.spacer { height: 40px; }
+/* Услуги */
+.services-list { display: flex; flex-direction: column; gap: 12px; }
+.service-card {
+  padding: 20px; border-radius: 24px; background: #f4f5f7;
+  display: flex; justify-content: space-between; align-items: center;
+  cursor: pointer; transition: 0.3s;
+}
+.service-card.active { background: #151515; color: #fff; }
+.srv-name { font-size: 16px; font-weight: 700; display: block; margin-bottom: 4px; }
+.srv-details { font-size: 13px; color: #888; }
+.service-card.active .srv-details { color: #aaa; }
+.srv-price { font-size: 16px; font-weight: 800; }
 
-.summary-card { background: #fff; padding: 16px; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); display: flex; flex-direction: column; gap: 8px; }
-.summary-row { display: flex; justify-content: space-between; font-size: 15px; color: #333; }
-.total { border-top: 1px solid #eee; padding-top: 8px; margin-top: 4px; font-size: 18px; color: #000; }
-.submit-button { background-color: #007aff; color: white; border: none; padding: 16px; font-size: 17px; font-weight: 600; border-radius: 12px; cursor: pointer; margin-top: 12px; width: 100%; }
+/* Инпут даты */
+.form-input {
+  width: 100%; padding: 18px; border-radius: 20px; border: none;
+  background: #f4f5f7; font-size: 16px; font-weight: 600; color: #111; box-sizing: border-box;
+}
+
+/* Сетка времени вместо барабана (современнее) */
+.time-grid { display: flex; flex-wrap: wrap; gap: 10px; }
+.time-pill {
+  flex: 1 1 calc(33% - 10px); padding: 14px; border-radius: 16px;
+  background: #f4f5f7; border: none; font-size: 15px; font-weight: 600;
+  color: #111; cursor: pointer; transition: 0.2s;
+}
+.time-pill.active { background: #c4f000; color: #111; box-shadow: 0 4px 12px rgba(196, 240, 0, 0.4); }
+
+/* Финальный Чек (Темная карточка) */
+.summary-card {
+  margin-top: 32px; background: #151515; border-radius: 32px; padding: 24px; color: #fff;
+}
+.summary-content { margin-bottom: 24px; }
+.sum-row { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 15px; }
+.sum-row .label { color: #888; }
+.sum-row .val { font-weight: 600; }
+.sum-divider { height: 1px; background: rgba(255,255,255,0.1); margin: 16px 0; }
+.sum-row.total { font-size: 20px; font-weight: 800; margin-bottom: 0; }
+
+/* Кнопка Оплаты */
+.submit-button {
+  width: 100%; padding: 18px; border-radius: 20px; border: none;
+  background: #fff; color: #111; font-size: 16px; font-weight: 800; cursor: pointer;
+}
 .submit-button:disabled { opacity: 0.6; }
-.loader, .error-msg { text-align: center; color: #6e6e73; padding: 20px 0; }
+.loader, .error-msg { text-align: center; color: #888; padding: 20px 0; font-weight: 500;}
 </style>
